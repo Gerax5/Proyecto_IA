@@ -2,7 +2,8 @@ import pygame
 from snake_game import SnakeGame
 from agent import Agent
 import matplotlib.pyplot as plt
-import pickle 
+import pickle
+import time
 
 plt.ion()
 
@@ -16,28 +17,32 @@ def plot_scores(scores, mean_scores):
     plt.legend()
     plt.pause(0.1)
 
+
 pygame.init()
 font = pygame.font.SysFont('Arial', 25)
-screen = pygame.display.set_mode((400, 400))  
+screen = pygame.display.set_mode((400, 400))
 
 game = SnakeGame()
 agent = Agent()
 
-scores = []
-mean_scores = []
+#cargar el modelo entrenado
+with open('trained_model.pkl', 'rb') as f:
+    agent.q_table = pickle.load(f)
 
-for episode in range(200):
+scores = []
+test_scores = []
+
+agent.epsilon = 0.0  # sin exploracion, porque deberia de aplicar lo que sabe
+
+for episode in range(10):
     state = game.reset()
     done = False
     total_reward = 0
 
-    while not done:
+    while not done: 
         action = agent.get_action(state)
         reward, done, score = game.play_step(action)
-        next_state = game.get_state()
-        agent.train_short_memory(state, action, reward, next_state, done)
-        state = next_state
-        total_reward += reward
+        state = game.get_state()
 
         screen.fill((0, 0, 0))
         for part in game.snake:
@@ -52,18 +57,16 @@ for episode in range(200):
                 exit()
 
     scores.append(score)
-    mean_scores.append(sum(scores[-20:]) / min(len(scores), 20))  
-    agent.epsilon = max(0.01, agent.epsilon * 0.99)
+    test_scores.append(sum(scores[-20:]) / min(len(scores), 20))  
+    
     print(f"Episode {episode} | Score: {score} | Epsilon: {agent.epsilon:.3f}")
+    print("Puntaje promedio en evaluación:", sum(test_scores)/len(test_scores))
 
-    plot_scores(scores, mean_scores)
+    plot_scores(scores, test_scores)
 
 pygame.quit()
 plt.ioff()
+
+time.sleep(2)
 plt.show()
 print("Entrenamiento finalizado.")
-
-
-# Guardar el modelo entrenado
-with open('trained_model.pkl', 'wb') as f:
-    pickle.dump(agent.q_table, f)

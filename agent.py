@@ -43,3 +43,6 @@ class Agent:
 
         # Actualizar valor Q con fórmula Q-learning
         self.q_table[state][action_idx] += self.lr * (target_q - current_q)
+
+    def remember(self, state, action, reward, next_state, done):
+        self.train_short_memory(state, action, reward, next_state, done)

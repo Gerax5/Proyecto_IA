@@ -59,7 +59,7 @@ for episode in range(10):
     scores.append(score)
     test_scores.append(sum(scores[-20:]) / min(len(scores), 20))  
     
-    print(f"Episode {episode} | Score: {score} | Epsilon: {agent.epsilon:.3f}")
+    print(f"Episode {episode+1} | Score: {score} | Epsilon: {agent.epsilon:.3f}")
     print("Puntaje promedio en evaluación:", sum(test_scores)/len(test_scores))
 
     plot_scores(scores, test_scores)

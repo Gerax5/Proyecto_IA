@@ -54,7 +54,7 @@ for episode in range(200):
     scores.append(score)
     mean_scores.append(sum(scores[-20:]) / min(len(scores), 20))  
     agent.epsilon = max(0.01, agent.epsilon * 0.99)
-    print(f"Episode {episode} | Score: {score} | Epsilon: {agent.epsilon:.3f}")
+    print(f"Episode {episode+1} | Score: {score} | Epsilon: {agent.epsilon:.3f}")
 
     plot_scores(scores, mean_scores)
 

@@ -8,7 +8,7 @@ import time
 modo = input("¿Qué modelo deseas probar? (1. TD o 2. RL): ")
 
 if modo == "1":
-    model_path = 'trained_model_RD.pkl'
+    model_path = 'trained_model_TD.pkl'
 elif modo == "2":
     model_path = 'trained_model_RL.pkl'
 else:
@@ -43,7 +43,6 @@ scores = []
 test_scores = []
 
 agent.epsilon = 0.0  # sin exploracion, porque deberia de aplicar lo que sabe
-agent.q_table = q_table
 
 for episode in range(10):
     state = game.reset()

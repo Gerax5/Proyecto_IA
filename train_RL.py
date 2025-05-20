@@ -3,17 +3,6 @@ from snake_game import SnakeGame
 from agent import Agent
 import matplotlib.pyplot as plt
 import pickle
-import time
-
-modo = input("¿Qué modelo deseas probar? (1. TD o 2. RL): ")
-
-if modo == "1":
-    model_path = 'trained_model_RD.pkl'
-elif modo == "2":
-    model_path = 'trained_model_RL.pkl'
-else:
-    print("Opción no válida. Saliendo.")
-    exit()
 
 plt.ion()
 
@@ -27,33 +16,27 @@ def plot_scores(scores, mean_scores):
     plt.legend()
     plt.pause(0.1)
 
-
 pygame.init()
-font = pygame.font.SysFont('Arial', 25)
 screen = pygame.display.set_mode((400, 400))
+font = pygame.font.SysFont('Arial', 25)
 
 game = SnakeGame()
 agent = Agent()
 
-#cargar el modelo entrenado
-with open(model_path, 'rb') as f:
-    agent.q_table = pickle.load(f)
-
 scores = []
-test_scores = []
+mean_scores = []
 
-agent.epsilon = 0.0  # sin exploracion, porque deberia de aplicar lo que sabe
-agent.q_table = q_table
-
-for episode in range(10):
+for episode in range(200):
     state = game.reset()
     done = False
-    total_reward = 0
+    trajectory = []  # Guardar (s, a, r) para cada paso
 
-    while not done: 
+    while not done:
         action = agent.get_action(state)
         reward, done, score = game.play_step(action)
-        state = game.get_state()
+        next_state = game.get_state()
+        trajectory.append((state, action, reward))
+        state = next_state
 
         screen.fill((0, 0, 0))
         for part in game.snake:
@@ -67,17 +50,27 @@ for episode in range(10):
                 pygame.quit()
                 exit()
 
-    scores.append(score)
-    test_scores.append(sum(scores[-20:]) / min(len(scores), 20))  
-    
-    print(f"Episode {episode+1} | Score: {score} | Epsilon: {agent.epsilon:.3f}")
-    print("Puntaje promedio en evaluación:", sum(test_scores)/len(test_scores))
+    # Actualizar Q-table
+    G = 0
+    for state, action, reward in reversed(trajectory):
+        G = reward + agent.gamma * G
+        state = tuple(state)
+        agent.ensure_state_exists(state)
+        action_idx = agent.actions.index(action)
+        agent.q_table[state][action_idx] += agent.lr * (G - agent.q_table[state][action_idx])
 
-    plot_scores(scores, test_scores)
+    scores.append(score)
+    mean_scores.append(sum(scores[-20:]) / min(len(scores), 20))
+    agent.epsilon = max(0.01, agent.epsilon * 0.99)
+    print(f"Episode {episode+1} | Score: {score} | Epsilon: {agent.epsilon:.3f}")
+
+    plot_scores(scores, mean_scores)
 
 pygame.quit()
 plt.ioff()
-
-time.sleep(2)
 plt.show()
-print("Entrenamiento finalizado.")
+
+with open('trained_model_RL.pkl', 'wb') as f:
+    pickle.dump(agent.q_table, f)
+
+print("Entrenamiento por refuerzo finalizado.")

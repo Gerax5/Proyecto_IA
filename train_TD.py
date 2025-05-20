@@ -65,5 +65,5 @@ print("Entrenamiento finalizado.")
 
 
 # Guardar el modelo entrenado
-with open('trained_model.pkl', 'wb') as f:
+with open('trained_model_TD.pkl', 'wb') as f:
     pickle.dump(agent.q_table, f)

@@ -4,8 +4,10 @@ from agent import Agent
 import matplotlib.pyplot as plt
 import pickle
 import time
+import os
 
 modo = input("¿Qué modelo deseas probar? (1. TD o 2. RL): ")
+iteraciones = int(input("Ingresa el numero de iteraciones: "))
 
 if modo == "1":
     model_path = 'trained_model_TD.pkl'
@@ -17,6 +19,12 @@ else:
 
 plt.ion()
 
+def get_unique_filename(base_name="plot", extension="png"):
+    i = 1
+    while os.path.exists(f"{base_name}_{i}.{extension}"):
+        i += 1
+    return f"{base_name}_{i}.{extension}"
+
 def plot_scores(scores, mean_scores):
     plt.clf()
     plt.title('Puntaje por episodio')
@@ -25,6 +33,8 @@ def plot_scores(scores, mean_scores):
     plt.plot(scores, label='Score')
     plt.plot(mean_scores, label='Promedio móvil', linestyle='--')
     plt.legend()
+    filename = get_unique_filename()
+    plt.savefig(filename)
     plt.pause(0.1)
 
 
@@ -44,7 +54,7 @@ test_scores = []
 
 agent.epsilon = 0.0  # sin exploracion, porque deberia de aplicar lo que sabe
 
-for episode in range(10):
+for episode in range(iteraciones):
     state = game.reset()
     done = False
     total_reward = 0
@@ -72,7 +82,7 @@ for episode in range(10):
     print(f"Episode {episode+1} | Score: {score} | Epsilon: {agent.epsilon:.3f}")
     print("Puntaje promedio en evaluación:", sum(test_scores)/len(test_scores))
 
-    plot_scores(scores, test_scores)
+plot_scores(scores, test_scores)
 
 pygame.quit()
 plt.ioff()

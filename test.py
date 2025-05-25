@@ -53,36 +53,41 @@ scores = []
 test_scores = []
 
 agent.epsilon = 0.0  # sin exploracion, porque deberia de aplicar lo que sabe
+try:
+    for episode in range(iteraciones):
+        state = game.reset()
+        done = False
+        total_reward = 0
 
-for episode in range(iteraciones):
-    state = game.reset()
-    done = False
-    total_reward = 0
+        while not done: 
+            action = agent.get_action(state)
+            reward, done, score = game.play_step(action)
+            state = game.get_state()
 
-    while not done: 
-        action = agent.get_action(state)
-        reward, done, score = game.play_step(action)
-        state = game.get_state()
+            screen.fill((0, 0, 0))
+            for part in game.snake:
+                pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(part[0], part[1], game.block, game.block))
+            pygame.draw.rect(screen, (255, 0, 0), pygame.Rect(game.food[0], game.food[1], game.block, game.block))
+            pygame.display.flip()
+            pygame.time.delay(50)
 
-        screen.fill((0, 0, 0))
-        for part in game.snake:
-            pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(part[0], part[1], game.block, game.block))
-        pygame.draw.rect(screen, (255, 0, 0), pygame.Rect(game.food[0], game.food[1], game.block, game.block))
-        pygame.display.flip()
-        pygame.time.delay(50)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                exit()
+        scores.append(score)
+        test_scores.append(sum(scores[-20:]) / min(len(scores), 20))  
+        
+        print(f"Episode {episode+1} | Score: {score} | Epsilon: {agent.epsilon:.3f}")
+        print("Puntaje promedio en evaluación:", sum(test_scores)/len(test_scores))
 
-    scores.append(score)
-    test_scores.append(sum(scores[-20:]) / min(len(scores), 20))  
-    
-    print(f"Episode {episode+1} | Score: {score} | Epsilon: {agent.epsilon:.3f}")
-    print("Puntaje promedio en evaluación:", sum(test_scores)/len(test_scores))
+except KeyboardInterrupt:
+    print("Process was interupted")
 
-plot_scores(scores, test_scores)
+finally:
+    print("Saving Image...")
+    plot_scores(scores, test_scores)
 
 pygame.quit()
 plt.ioff()

@@ -1,8 +1,10 @@
 import random
 import numpy as np
+import time
 
 class SnakeGame:
     def __init__(self, w=400, h=400):
+        self.timeout = 3        
         self.w = w
         self.h = h
         self.block = 20
@@ -26,14 +28,18 @@ class SnakeGame:
                 self.food = [x, y]
                 break
 
-    def play_step(self, action): 
+    def play_step(self, action, last_time): 
         self.frame += 1
         self.move(action)
         self.snake.insert(0, self.head[:])
+        self.last_time = time.time()
 
         reward = 0
         game_over = False
-        if self.is_collision():
+        isTimeout = ((time.time() - last_time) > self.timeout)
+        if self.is_collision() or isTimeout:
+            if isTimeout:
+                print("Timeout!")
             game_over = True
             reward = -10
             return reward, game_over, self.score

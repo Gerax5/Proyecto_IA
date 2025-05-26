@@ -59,9 +59,10 @@ try:
         done = False
         total_reward = 0
 
-        while not done: 
+        last_time = time.time()
+        while not done:         
             action = agent.get_action(state)
-            reward, done, score = game.play_step(action)
+            reward, done, score = game.play_step(action, last_time)
             state = game.get_state()
 
             screen.fill((0, 0, 0))
@@ -69,7 +70,7 @@ try:
                 pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(part[0], part[1], game.block, game.block))
             pygame.draw.rect(screen, (255, 0, 0), pygame.Rect(game.food[0], game.food[1], game.block, game.block))
             pygame.display.flip()
-            pygame.time.delay(50)
+            pygame.time.delay(0)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:

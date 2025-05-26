@@ -2,7 +2,7 @@ import pygame
 from snake_game import SnakeGame
 from agent import Agent
 import matplotlib.pyplot as plt
-import pickle
+import pickle 
 
 plt.ion()
 
@@ -17,8 +17,8 @@ def plot_scores(scores, mean_scores):
     plt.pause(0.1)
 
 pygame.init()
-screen = pygame.display.set_mode((400, 400))
 font = pygame.font.SysFont('Arial', 25)
+screen = pygame.display.set_mode((400, 400))  
 
 game = SnakeGame()
 agent = Agent()
@@ -29,14 +29,15 @@ mean_scores = []
 for episode in range(1000):
     state = game.reset()
     done = False
-    trajectory = []  # Guardar (s, a, r) para cada paso
+    total_reward = 0
 
     while not done:
         action = agent.get_action(state)
         reward, done, score = game.play_step(action)
         next_state = game.get_state()
-        trajectory.append((state, action, reward))
+        agent.train_short_memory(state, action, reward, next_state, done)
         state = next_state
+        total_reward += reward
 
         screen.fill((0, 0, 0))
         for part in game.snake:
@@ -50,17 +51,8 @@ for episode in range(1000):
                 pygame.quit()
                 exit()
 
-    # Actualizar Q-table
-    G = 0
-    for state, action, reward in reversed(trajectory):
-        G = reward + agent.gamma * G
-        state = tuple(state)
-        agent.ensure_state_exists(state)
-        action_idx = agent.actions.index(action)
-        agent.q_table[state][action_idx] += agent.lr * (G - agent.q_table[state][action_idx])
-
     scores.append(score)
-    mean_scores.append(sum(scores[-20:]) / min(len(scores), 20))
+    mean_scores.append(sum(scores[-20:]) / min(len(scores), 20))  
     agent.epsilon = max(0.01, agent.epsilon * 0.99)
     print(f"Episode {episode+1} | Score: {score} | Epsilon: {agent.epsilon:.3f}")
 
@@ -69,8 +61,15 @@ for episode in range(1000):
 pygame.quit()
 plt.ioff()
 plt.show()
+print("Entrenamiento finalizado.")
 
-with open('trained_model_RL.pkl', 'wb') as f:
+# Mostrar estadísticas finales
+avg_score = sum(scores) / len(scores)
+max_score = max(scores)
+print(f"\nEstadísticas Finales:")
+print(f"Promedio de puntaje: {avg_score:.2f}")
+print(f"Puntaje más alto alcanzado: {max_score}")
+
+# Guardar el modelo entrenado
+with open('trained_model_QL.pkl', 'wb') as f:
     pickle.dump(agent.q_table, f)
-
-print("Entrenamiento por refuerzo finalizado.")

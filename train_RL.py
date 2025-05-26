@@ -26,7 +26,7 @@ agent = Agent()
 scores = []
 mean_scores = []
 
-for episode in range(200):
+for episode in range(1000):
     state = game.reset()
     done = False
     trajectory = []  # Guardar (s, a, r) para cada paso

@@ -16,9 +16,9 @@ def plot_scores(scores, mean_scores):
     plt.legend()
     plt.pause(0.1)
 
-# pygame.init()
-# screen = pygame.display.set_mode((400, 400))
-# font = pygame.font.SysFont('Arial', 25)
+pygame.init()
+screen = pygame.display.set_mode((400, 400))
+font = pygame.font.SysFont('Arial', 25)
 
 game = SnakeGame()
 agent = Agent()
@@ -38,17 +38,17 @@ for episode in range(1000):
         trajectory.append((state, action, reward))
         state = next_state
 
-        # screen.fill((0, 0, 0))
-        # for part in game.snake:
-        #     pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(part[0], part[1], game.block, game.block))
-        # pygame.draw.rect(screen, (255, 0, 0), pygame.Rect(game.food[0], game.food[1], game.block, game.block))
-        # pygame.display.flip()
-        # pygame.time.delay(50)
+        screen.fill((0, 0, 0))
+        for part in game.snake:
+            pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(part[0], part[1], game.block, game.block))
+        pygame.draw.rect(screen, (255, 0, 0), pygame.Rect(game.food[0], game.food[1], game.block, game.block))
+        pygame.display.flip()
+        pygame.time.delay(50)
 
-        # for event in pygame.event.get():
-        #     if event.type == pygame.QUIT:
-        #         pygame.quit()
-        #         exit()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
 
     # Actualizar Q-table
     G = 0

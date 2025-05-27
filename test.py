@@ -6,13 +6,13 @@ import pickle
 import time
 import os
 
-modo = input("¿Qué modelo deseas probar? (1. TD o 2. RL): ")
+modo = input("¿Qué modelo deseas probar? (1. TD o 2. QL): ")
 iteraciones = int(input("Ingresa el numero de iteraciones: "))
 
 if modo == "1":
     model_path = 'trained_model_TD.pkl'
 elif modo == "2":
-    model_path = 'trained_model_RL.pkl'
+    model_path = 'trained_model_QL.pkl'
 else:
     print("Opción no válida. Saliendo.")
     exit()
